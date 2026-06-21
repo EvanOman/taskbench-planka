@@ -1,0 +1,46 @@
+name: Test
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ master ]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.14 dropped: pydantic-core build fails on PyO3 0.24 (upstream).
+        # Re-add when pydantic ships a 3.14-compatible wheel.
+        python-version: ["3.12", "3.13"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        enable-cache: true
+
+    - name: Set up Python ${{ matrix.python-version }}
+      run: uv python install ${{ matrix.python-version }}
+
+    - name: Install package + test deps
+      # Editable install pulls taskbench from the git source declared in
+      # pyproject's tool.uv.sources. The entry point is registered on
+      # install; the smoke tests assert the registration is visible to
+      # importlib.metadata.entry_points.
+      run: |
+        uv venv --python ${{ matrix.python-version }}
+        uv pip install -e . pytest
+
+    - name: Run smoke tests
+      run: uv run pytest tests/ -v
+
+    - name: Audit dependencies for known vulnerabilities
+      run: uv tool run pip-audit --strict --path .venv
