@@ -17,7 +17,7 @@ classifiers = [
 
 dependencies = [
     "taskbench>=1.0.0",
-    "plankapy>=2.2.2",
+    "plankapy>=2.3.0",
 ]
 
 [project.urls]
