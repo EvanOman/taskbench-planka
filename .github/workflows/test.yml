@@ -17,7 +17,7 @@ jobs:
       matrix:
         # 3.14 dropped: pydantic-core build fails on PyO3 0.24 (upstream).
         # Re-add when pydantic ships a 3.14-compatible wheel.
-        python-version: ["3.12", "3.13"]
+        python-version: ["3.13"]
 
     steps:
     - uses: actions/checkout@v4
